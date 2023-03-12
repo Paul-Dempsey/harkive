@@ -95,7 +95,7 @@ impl MatrixHandler {
     pub fn is_ready(&self) -> bool {
         self.done
     }
-    pub fn unready(&mut self) {
+    pub fn not_ready(&mut self) {
         self.done = false;
     }
 
@@ -241,6 +241,18 @@ impl MatrixHandler {
             )?)
     }
 
+    // setting for store (save to flash) is one-based index on channel 15
+    pub fn set_slot(&self, slot:u8) -> Result<()> {
+        self.send_cc(CHANNEL16, 0, 0)?;
+        self.send_cc(CHANNEL16, 32, 0)?;
+        self.output
+            .port
+            .SendMessage(&MidiProgramChangeMessage::CreateMidiProgramChangeMessage(
+                CHANNEL15, slot-1
+            )?)
+    }
+
+    // selection is zero-based slot index on channel 16
     pub fn choose_preset(&self, index: u8) -> Result<()> {
         // bank
         self.send_cc(CHANNEL16, 0, 0)?;

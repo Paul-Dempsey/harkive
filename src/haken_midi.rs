@@ -52,37 +52,40 @@ pub const DspPercent:u8         = 114;
 // ----  values  ------------------------------
 
 // DataStream values
-pub const DataStream_Name:u8           = 0;
-pub const DataStream_Text:u8           = 1;
-pub const DataStream_Graph:u8           = 2;
-pub const DataStream_GraphOffset1:u8    = 3;
-pub const DataStream_GraphOffset2:u8    = 4;
-pub const DataStream_GraphT0:u8         = 5;
-pub const DataStream_GraphT1:u8         = 6;
-pub const DataStream_Log:u8             = 7;
-pub const DataStream_Category:u8        = 8;
-pub const DataStream_DemoAssort:u8      = 9;
-pub const DataStream_Float:u8           = 10;
-pub const DataStream_Kinetic:u8         = 11;
-pub const DataStream_BiquadSin:u8       = 12;
-pub const DataStream_System:u8          = 13;
-pub const DataStream_Convolution:u8     = 14;
-pub const DataStream_End:u8             = 127;
+pub const DataStream_Name:u8                    = 0;
+pub const DataStream_Text:u8                    = 1;
+pub const DataStream_Graph:u8                   = 2;
+pub const DataStream_GraphOffset1:u8            = 3;
+pub const DataStream_GraphOffset2:u8            = 4;
+pub const DataStream_GraphT0:u8                 = 5;
+pub const DataStream_GraphT1:u8                 = 6;
+pub const DataStream_Log:u8                     = 7;
+pub const DataStream_Category:u8                = 8;
+pub const DataStream_DemoAssort:u8              = 9;
+pub const DataStream_Float:u8                   = 10;
+pub const DataStream_Kinetic:u8                 = 11;
+pub const DataStream_BiquadSin:u8               = 12;
+pub const DataStream_System:u8                  = 13;
+pub const DataStream_Convolution:u8             = 14;
+pub const DataStream_End:u8                     = 127;
 
 // DownloadControl values
-pub const DownloadControl_ArchiveOk:u8   = 5;
-pub const DownloadControl_ArchiveFail:u8 = 6;
+pub const DownloadControl_ArchiveOk:u8          = 5;
+pub const DownloadControl_ArchiveFail:u8        = 6;
 
-pub const DownloadControl_DspDone:u8     = 26;
+pub const DownloadControl_SaveToFlash:u8        = 8;
 
-pub const DownloadControl_BeginUserNames:u8   = 54;
-pub const DownloadControl_EndUserNames:u8     = 55;
+pub const DownloadControl_DspDone:u8            = 26;
 
-pub const DownloadControl_EndSystemNames:u8   = 40;
-pub const DownloadControl_BeginSystemNames:u8 = 49;
+pub const DownloadControl_BeginUserNames:u8     = 54;
+pub const DownloadControl_EndUserNames:u8       = 55;
+
+pub const DownloadControl_EndSystemNames:u8     = 40;
+pub const DownloadControl_BeginSystemNames:u8   = 49;
 
 // DownloadInfo values
-pub const DownloadInfo_BeginArchive:u8  = 120;
-pub const DownloadInfo_EndArchive:u8    = 124;
+pub const DownloadInfo_BeginArchive:u8          = 120;
+pub const DownloadInfo_RetrieveArchive:u8       = 121;
+pub const DownloadInfo_EndArchive:u8            = 124;
 
 }

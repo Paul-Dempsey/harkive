@@ -10,6 +10,7 @@ pub struct MidiFile {
 const HEADER_LENGTH: usize = 14;
 const TRACK_HEADER_LENGTH: usize = 8;
 const TRACK_END_LENGTH: usize = 4; // (varlen delta time of 0 = 1 byte) + FF 2F 00
+
 impl MidiFile {
     pub fn clear(&mut self) {
         self.bytes.clear();

@@ -1,4 +1,5 @@
 use crate::midi_traits::*;
+use crate::util::short_hash;
 use std::collections::HashMap;
 
 #[repr(u8)]
@@ -17,6 +18,18 @@ pub fn is_empty_preset_name(name: &str) -> bool {
         6.. => &(name[0..6]) == "Empty.",
         _ => false,
     }
+}
+
+pub fn make_preset_filename(preset: &str, data: &[u8]) -> String {
+    let anon = is_empty_preset_name(preset);
+    if anon {
+        println!("Renaming Empty or un-named preset");
+    }
+    (if anon {
+        format!("anon-{}", short_hash(data))
+    } else {
+        preset.to_string()
+    } + ".mid")
 }
 
 #[derive(Clone)]

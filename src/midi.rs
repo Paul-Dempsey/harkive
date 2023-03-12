@@ -1,5 +1,4 @@
 use crate::midi_traits::*;
-use crate::util::*;
 use windows::core::*;
 
 #[derive(Default, Clone)]

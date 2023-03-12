@@ -4,9 +4,10 @@ use windows::{
     Win32::Foundation::{E_FAIL},
 };
 use crate::{
+    matrix_handler::{ MatrixHandler, ArchiveState }, midi::CHANNEL16, haken_midi::cc16,
+    options::Options,
     read_midi_file::ReadMidiFile,
-    preset_manager::WorkingStatus,
-    matrix_handler::{ MatrixHandler, ArchiveState },
+    stepper::*,
 };
 
 
@@ -22,14 +23,16 @@ enum SendState {
 }
 
 pub struct PresetLoader {
+    slot: u8,
     file: ReadMidiFile,
     name: String,
     state: SendState,
 }
 
 impl PresetLoader {
-    pub fn new(name: &str, data: &[u8]) -> Self {
+    pub fn new(slot:u8, name: &str, data: &[u8]) -> Self {
         Self {
+            slot,
             name: name.to_string(),
             file: ReadMidiFile::new(data),
             state: SendState::default(),
@@ -40,28 +43,36 @@ impl PresetLoader {
     {
         Err(Error::new(E_FAIL, HSTRING::from(message)))
     }
-    
-    pub fn next(&mut self, handler: &mut MatrixHandler) -> Result<WorkingStatus> {
+}
+impl Stepper for PresetLoader
+{    
+    fn next(&mut self, _: &Options, handler: &mut MatrixHandler) -> Result<WorkingStatus> {
         match self.state {
             SendState::Start => {
                 println!(">>Starting preset load");
-                handler.choose_edit_slot()?;
+                if 0 == self.slot {
+                    handler.choose_edit_slot()?;
+                } else {
+                    handler.choose_preset(self.slot)?;
+                }
                 handler.editor_present()?; // editor present
                 self.state = SendState::Prologue;
                 Ok(WorkingStatus::Working)
             },
+
             SendState::Prologue => {
                 println!(">>Sending preset data");
                 handler.clear_archive_state();
-                handler.send_cc(15, 110, 121)?; // Retrieve Archive
+                handler.send_cc(CHANNEL16, cc16::DownloadInfo, cc16::DownloadInfo_RetrieveArchive)?;
                 self.state = SendState::Matrix;
-//                handler.unready();
                 Ok(WorkingStatus::Working)
             },
+
             SendState::Matrix => {
                 while let Some((_dt, midi)) = self.file.next()? {
                     // Commented out because it seems that sleeping when a
                     // chennel message is sent will cause mpsc recv to deadlock.
+                    // and we seem to be working ok without delays.
                     // if !dt.is_zero() {
                     //     std::thread::sleep(dt);
                     // }
@@ -76,7 +87,7 @@ impl PresetLoader {
 
                     ArchiveState::Ok => {
                         self.state = SendState::Name;
-                        handler.unready();
+                        handler.not_ready();
                         return Ok(WorkingStatus::Working);
                     }
 
@@ -86,23 +97,28 @@ impl PresetLoader {
                 }
                 Ok(WorkingStatus::Working)
             },
+
             SendState::Name => {
-                println!(">>Sending \"{}\" and slot", self.name);
+                println!(">>Sending \"{}\" and slot {}", self.name, self.slot);
                 handler.clear_presets();
                 handler.send_string(0, &self.name)?;
-                handler.set_edit_slot()?;
-
+                if 0 == self.slot {
+                    handler.set_edit_slot()?;
+                } else {
+                    handler.set_slot(self.slot)?;
+                }
                 self.state = SendState::Save;
-                handler.unready();
+                handler.not_ready();
                 Ok(WorkingStatus::Working)
             }
+
             SendState::Save => {
                 println!(">>Save to flash");
-                handler.send_cc(15, 109, 8)?; // save to flash
+                handler.send_cc(CHANNEL16, cc16::DownloadControl, cc16::DownloadControl_SaveToFlash)?;
 
                 self.state = SendState::Finish;
                 handler.editor_present()?;
-                handler.unready();
+                handler.not_ready();
                 Ok(WorkingStatus::Working)
             }
             SendState::Finish => {

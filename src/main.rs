@@ -10,6 +10,7 @@ use windows::{
 
 mod acquire_device;
 mod cc_text;
+#[allow(dead_code)]
 mod continuum_preset;
 #[allow(dead_code)]
 mod data_kind;
@@ -25,10 +26,14 @@ mod midi_source;
 #[allow(dead_code)]
 mod midi_traits;
 mod options;
+#[allow(dead_code)]
 mod preset_listing;
-mod preset_loader;
+mod step_load;
 mod preset_manager;
 mod read_midi_file;
+mod stepper;
+mod step_names;
+mod step_save;
 mod thread_control;
 #[allow(dead_code)]
 mod util;
