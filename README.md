@@ -2,7 +2,7 @@
 
 A Windows command-line Haken EaganMatrix preset archiver.
 
-Loads and saves presets from any device with Haken Audio's EaganMatrix engine.
+List, load and save presets from any device with Haken Audio's EaganMatrix engine.
 Due to historic Windows limitations, it cannot be used while the Haken Editor is running.
 
 [Documentation](./doc/harkive.md)
