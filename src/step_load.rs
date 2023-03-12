@@ -99,7 +99,7 @@ impl Stepper for PresetLoader
             },
 
             SendState::Name => {
-                println!(">>Sending \"{}\" and slot {}", self.name, self.slot);
+                println!(">>Sending \"{}\" to slot {}", self.name, self.slot);
                 handler.clear_presets();
                 handler.send_string(0, &self.name)?;
                 if 0 == self.slot {
