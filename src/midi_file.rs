@@ -33,14 +33,14 @@ impl MidiFile {
         result
     }
     fn add_file_header(bytes: &mut Vec<u8>) {
-        bytes.extend_from_slice(&[b'M', b'T', b'h', b'd']);
+        bytes.extend_from_slice(b"MThd");
         Self::add_u32(bytes, 6); // length
         Self::add_word(bytes, 0); // format
         Self::add_word(bytes, 1); // #tracks
         Self::add_word(bytes, 96); // division
     }
     fn add_track_header(bytes: &mut Vec<u8>, length: u32) {
-        bytes.extend_from_slice(&[b'M', b'T', b'r', b'k']);
+        bytes.extend_from_slice(b"MTrk");
         Self::add_u32(bytes, length);
     }
     fn add_end_of_track(bytes: &mut Vec<u8>) {
@@ -66,24 +66,25 @@ impl MidiFile {
     }
 
     fn msec_to_delta_ticks(ms: u64) -> u32 {
-        let dt = ms / 192_000;
+        let dt = ms / 1920;
         debug_assert!(dt <= u32::MAX as u64);
         dt as u32
     }
     fn next_tick(&self, tick: i64) -> u32 {
         assert!(tick >= 0);
         assert!(tick >= self.last_tick);
-        if self.last_tick == 0 {
-            0
-        } else {
-            Self::msec_to_delta_ticks((tick - self.last_tick) as u64)
-        }
+        Self::msec_to_delta_ticks((tick - self.last_tick) as u64)
     }
     pub fn add_tick(&mut self, tick: i64) {
-        let next = self.next_tick(tick);
-        self.add_var_len(next);
-        if next > 0 {
+        if self.last_tick == 0 {
             self.last_tick = tick;
+            self.add_var_len(0);    
+        } else {
+            let next = self.next_tick(tick);
+            self.add_var_len(next);
+            if next > 0 {
+                self.last_tick = tick;
+            }
         }
     }
 

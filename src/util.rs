@@ -1,5 +1,15 @@
 use std::collections::hash_map::DefaultHasher;
 use std::hash::Hasher;
+use std::path::PathBuf;
+
+pub fn is_extension(path: &PathBuf, extension: &str) -> bool {
+    if let Some(ext) = path.extension() {
+        if let Some(pext) = ext.to_str() {
+            return pext == extension
+        }
+    }
+    false
+}
 
 pub fn count_leading(leading: char, slice: &str) -> u32 {
     let mut count = 0;

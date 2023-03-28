@@ -53,6 +53,7 @@ pub struct MatrixHandler {
     next_bank: u8,
     midi_file: MidiFile,
     done: bool,
+    receive_editor_reply: bool,
     noise: Noise,
     tick_tock: bool,
     receive_sync: bool,
@@ -82,6 +83,7 @@ impl MatrixHandler {
             next_bank: u8::MAX,
             midi_file: MidiFile::default(),
             done: false,
+            receive_editor_reply: false,
             noise: Noise::Verbose,
             tick_tock: true,
             receive_sync: false,
@@ -97,6 +99,9 @@ impl MatrixHandler {
     }
     pub fn not_ready(&mut self) {
         self.done = false;
+    }
+    pub fn editor_reply(&self) -> bool {
+        self.receive_editor_reply
     }
 
     pub fn get_archive_data(&mut self) -> Vec<u8> {
@@ -218,6 +223,7 @@ impl MatrixHandler {
     pub fn editor_present(&mut self) -> Result<()> {
         let value = if self.tick_tock { 85 } else { 42 };
         self.tick_tock = !self.tick_tock;
+        self.receive_editor_reply = false;
         self.send_cc(CHANNEL16, 116, value) // editor present
     }
 
@@ -254,16 +260,27 @@ impl MatrixHandler {
 
     // selection is zero-based slot index on channel 16
     pub fn choose_preset(&self, index: u8) -> Result<()> {
-        // bank
-        self.send_cc(CHANNEL16, 0, 0)?;
-        // category
-        self.send_cc(CHANNEL16, 32, 0)?;
-        // preset#
-        self.output
-            .port
-            .SendMessage(&MidiProgramChangeMessage::CreateMidiProgramChangeMessage(
-                CHANNEL16, index,
-            )?)
+        if index == 128 {
+            self.send_cc(CHANNEL16, 0, 126)?;
+            self.send_cc(CHANNEL16, 32, 1)?;
+            self.output
+                .port
+                .SendMessage(&MidiProgramChangeMessage::CreateMidiProgramChangeMessage(
+                    CHANNEL16, 1,
+                )?)
+
+        } else {
+            // bank
+            self.send_cc(CHANNEL16, 0, 0)?;
+            // category
+            self.send_cc(CHANNEL16, 32, 0)?;
+            // preset#
+            self.output
+                .port
+                .SendMessage(&MidiProgramChangeMessage::CreateMidiProgramChangeMessage(
+                    CHANNEL16, index,
+                )?)
+        }
     }
 
     /// bank = 0-based user bank 0..7
@@ -378,6 +395,9 @@ impl MatrixHandler {
                     _ => {}
                 };
             }
+            cc16::EditorReply => {
+                self.receive_editor_reply = true;
+            }
             _ => {}
         }
     }
@@ -408,8 +428,7 @@ impl MidiHandler for MatrixHandler {
 
     fn on_control_change(&mut self, ticks: i64, channel: u8, cc: u8, value: u8) -> Result<()> {
         if self.in_archive {
-            self.midi_file
-                .on_control_change(ticks, channel, cc, value)?;
+            self.midi_file.on_control_change(ticks, channel, cc, value)?;
         }
         let channel = 1 + channel;
         //Self::log_channel_message2(ticks, "CC", channel, cc, value);
@@ -444,7 +463,7 @@ impl MidiHandler for MatrixHandler {
                     if preset.name != "-" {
                         self.presets.push(preset);
                     }
-                } else if self.terse() {
+                } else if self.terse() && self.verb != Action::Load {
                     preset.print();
                     //preset.print_friendly_categories(&self.catcode)
                 }
@@ -458,8 +477,7 @@ impl MidiHandler for MatrixHandler {
 
     fn on_channel_pressure(&mut self, ticks: i64, channel: u8, pressure: u8) -> Result<()> {
         if self.in_archive {
-            self.midi_file
-                .on_channel_pressure(ticks, channel, pressure)?;
+            self.midi_file.on_channel_pressure(ticks, channel, pressure)?;
         }
         let channel = channel + 1;
         if channel == 16 {

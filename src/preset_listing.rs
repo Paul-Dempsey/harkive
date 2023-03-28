@@ -39,8 +39,7 @@ where
 
 // Matches HakenEditor behavior where encountering an invalid line
 // silently stops parsing.
-pub fn read_preset_listing(path: &PathBuf) -> Result<Vec<ContinuumPreset>> {
-    let mut result: Vec<ContinuumPreset> = Vec::new();
+pub fn read_preset_listing(path: &PathBuf, presets: &mut Vec<ContinuumPreset>) -> Result<()> {
     let mut builder = PresetBuilder::default();
     match read_lines(path) {
         Ok(lines) => {
@@ -56,16 +55,22 @@ pub fn read_preset_listing(path: &PathBuf) -> Result<Vec<ContinuumPreset>> {
                                 Ok(n) => {
                                     builder.set_number(n);
                                 }
-                                Err(_) => break,
+                                Err(error) => {
+                                    return Err(Error::new(E_FAIL, HSTRING::from(error.to_string())));
+                                }
                             }
                         } else {
                             break;
                         }
                         if let Some(mut s) = pieces.next() {
                             s = s.trim_matches(string_trim);
-                            builder.add_name_chars(s);
+                            if s.ends_with(".mid") {
+                                builder.add_name_chars(&s[0..s.len()-4]);
+                            } else {
+                                builder.add_name_chars(s);
+                            }
                             if let Some(preset) = builder.finish() {
-                                result.push(preset);
+                                presets.push(preset);
                             } else {
                                 unreachable!();
                             }
@@ -73,13 +78,13 @@ pub fn read_preset_listing(path: &PathBuf) -> Result<Vec<ContinuumPreset>> {
                             break;
                         }
                     }
-                    Err(_) => {
-                        break;
+                    Err(error) => {
+                        return Err(Error::new(E_FAIL, HSTRING::from(error.to_string())));
                     }
                 }
             }
         }
         Err(error) => return Err(Error::new(E_FAIL, HSTRING::from(error.to_string()))),
     }
-    Ok(result)
+    Ok(())
 }

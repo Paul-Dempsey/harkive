@@ -1,11 +1,9 @@
 use std::sync::mpsc::*;
-use windows::{core::*, Win32::Foundation::E_FAIL};
 use crate::{
     acquire_device::*,
     matrix_handler::MatrixHandler,
     midi_handler::*,
     midi_source::MidiSource,
-    midi::is_midi_header,
     options::{Action, Options},
     step_load::PresetLoader,
     stepper::*,
@@ -36,10 +34,6 @@ impl<'a> PresetManager<'a> {
         }
     }
 
-    fn fail(message: &str) -> windows::core::Result<()> {
-        Err(Error::new(E_FAIL, HSTRING::from(message)))
-    }
-
     fn start_action(&mut self) -> windows::core::Result<()> {
         match self.options.action {
             Action::ListNames => {
@@ -49,34 +43,10 @@ impl<'a> PresetManager<'a> {
                 self.stepper = Box::new(SingleSaver{});
             }
             Action::Save => {
-                self.stepper = Box::new(Saver::new())
+                self.stepper = Box::new(Saver::new());
             }
             Action::Load => {
-                if let Some(path) = self.options.get_path() {
-                    if path.is_file() {
-                        // either listing (.txt) file or (.mid) file
-                        match std::fs::read(&path) {
-                            Ok(data) => {
-                                if is_midi_header(&data[0..]) {
-                                    let name = if let Some(filename) = &path.file_stem() {
-                                        filename.to_string_lossy().to_string()
-                                    } else {
-                                        "Empty".to_string()
-                                    };
-                                    self.stepper = Box::new(PresetLoader::new(0, &name, &data[0..]));
-                                } else {
-                                    //let presets = crate::preset_listing::read_preset_listing(&path);
-                                }
-                            }
-                            Err(error) => {
-                                return Self::fail(&error.to_string());
-                            }
-                        }
-                    } else {
-                        // folder - enumerate first 128 presets in alphabetical order
-                        todo!();
-                    }
-                }
+                self.stepper = Box::new(PresetLoader::new());
             }
             _ => {}
         };

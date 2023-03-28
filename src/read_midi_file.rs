@@ -12,6 +12,7 @@ use crate:: {
      midi_handler::WinMidi,
 };
 
+#[derive(Default)]
 pub struct ReadMidiFile {
     data: Vec<u8>,
     decoder: VariableLengthValue,
@@ -30,6 +31,14 @@ impl ReadMidiFile {
             end: data.len(),
         }
     }
+
+    // pub fn start(&mut self, data: &[u8]) {
+    //     self.data.clear();
+    //     self.data.extend_from_slice(data);
+    //     self.index = 0;
+    //     self.running_status = 0;
+    //     self.decoder.start();
+    // }
 
     // pub fn reset(&mut self) {
     //     self.index = 0;
@@ -136,7 +145,12 @@ impl ReadMidiFile {
 
     fn read_event(&mut self) -> Result<Option<(Duration, WinMidi)>> {
         let delta = self.read_var_len()?;
-        let dt = if delta == 0 { std::time::Duration::ZERO } else { Self::delta_to_ms(delta) };
+        let dt = if delta == 0 {
+            std::time::Duration::ZERO
+        } else { 
+            //let delta = usize::max(delta, 10);
+            Self::delta_to_ms(delta)
+        };
         let status = self.running_status();
         match status {
             0xF0 //SysEx

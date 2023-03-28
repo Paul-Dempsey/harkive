@@ -49,6 +49,8 @@ pub const DeviceStatus:u8       = 111;
 
 pub const DspPercent:u8         = 114;
 
+pub const EditorReply:u8        = 118;
+
 // ----  values  ------------------------------
 
 // DataStream values
