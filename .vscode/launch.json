@@ -19,8 +19,10 @@
                     "kind": "bin"
                 }
             },
-            "args": ["-d", "Mini", "-l", "C:\\HakenEditor\\HE\\Firmware\\SysPresets\\Continuum\\StandardContinuum\\Sawz.mid"]
-//            "args": ["-d", "Mini", "-l", "C:\\scratch\\hem-test\\anon-30665.mid"]
+//            "args": ["-d", "Mini", "-l", "C:\\HakenEditor\\HE\\Firmware\\SysPresets\\Continuum\\StandardContinuum\\Sawz.mid"]
+//            "args": ["-l", "C:\\scratch\\hem-test\\anon-30665.mid"]
+//            "args": ["-l", "C:\\HakenEditor\\HE\\Firmware\\SysPresets\\Continuum\\StandardContinuum"]
+            "args": ["--save", "C:\\scratch\\hem-test"]
         },
        
    ]

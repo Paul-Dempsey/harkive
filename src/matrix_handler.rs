@@ -268,7 +268,6 @@ impl MatrixHandler {
                 .SendMessage(&MidiProgramChangeMessage::CreateMidiProgramChangeMessage(
                     CHANNEL16, 1,
                 )?)
-
         } else {
             // bank
             self.send_cc(CHANNEL16, 0, 0)?;

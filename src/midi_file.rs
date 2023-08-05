@@ -78,7 +78,7 @@ impl MidiFile {
     pub fn add_tick(&mut self, tick: i64) {
         if self.last_tick == 0 {
             self.last_tick = tick;
-            self.add_var_len(0);    
+            self.add_var_len(0);
         } else {
             let next = self.next_tick(tick);
             self.add_var_len(next);
@@ -120,7 +120,6 @@ impl MidiHandler for MidiFile {
     ) -> windows::core::Result<()> {
         Self::unexpected("note_off")
     }
-
     fn on_note_on(
         &mut self,
         _ticks: i64,
@@ -130,7 +129,6 @@ impl MidiHandler for MidiFile {
     ) -> windows::core::Result<()> {
         Self::unexpected("note_on")
     }
-
     fn on_polyphonic_key_pressure(
         &mut self,
         ticks: i64,
@@ -152,7 +150,6 @@ impl MidiHandler for MidiFile {
         self.add_message_two(ticks, STATUS_CC | channel, cc, value);
         Ok(())
     }
-
     fn on_program_change(
         &mut self,
         ticks: i64,
@@ -162,7 +159,6 @@ impl MidiHandler for MidiFile {
         self.add_message_one(ticks, STATUS_PROGRAM_CHANGE | channel, program);
         Ok(())
     }
-
     fn on_channel_pressure(
         &mut self,
         ticks: i64,
@@ -172,7 +168,6 @@ impl MidiHandler for MidiFile {
         self.add_message_one(ticks, STATUS_CHANNEL_PRESSURE | channel, pressure);
         Ok(())
     }
-
     fn on_pitch_bend_change(
         &mut self,
         ticks: i64,
@@ -184,7 +179,6 @@ impl MidiHandler for MidiFile {
         self.add_message_two(ticks, STATUS_PITCH_BEND | channel, byte1, byte2);
         Ok(())
     }
-
     fn on_system_exclusive(&mut self, _ticks: i64, _data: Vec<u8>) -> windows::core::Result<()> {
         Self::unexpected("system_exclusive")
     }

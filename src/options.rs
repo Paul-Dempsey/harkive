@@ -27,7 +27,7 @@ impl Options {
         //------------------------------------------------------------------------------
         println!(
             r#"---------------
-hem-archive
+harkive
 
 Load and save presets from any device with Haken Audio's EaganMatrix engine.
 Cannot be used while the Haken editor is running.
@@ -84,7 +84,7 @@ contains a UserPresets.txt file, that list file is used. Otherwise all preset
 
     pub fn usage() {
         println!(
-            r#"hem-archive [--device <name>] <action> [<path>]
+            r#"harkive [--device <name>] <action> [<path>]
 
 --device   (-d) Name of device to save/restore from.
 --input    (-i) Print list of connected MIDI devices.
